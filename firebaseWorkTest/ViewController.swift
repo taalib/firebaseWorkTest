@@ -9,34 +9,57 @@
 import UIKit
 import Firebase
 import FirebaseDatabase
+//
+// var currentFact = ""
 
-class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+protocol currentFacts {
+    
+    var currentFact: String { get } 
+    
+}
+
+class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, currentFacts {
+    
+    var currentFact = ""
     
     @IBOutlet weak var myTableView: UITableView!
     
     var ref:DatabaseReference?
     var databaseHandle:DatabaseHandle?
     var birdData = [String]()
+    var total = 4
     
     override func viewDidLoad() {
         super.viewDidLoad()
+    }
+
+    
+    @IBAction func retrieveBtn(_ sender: Any) {
+        
+        print ("retrieve")
         
         // Set the firebase reference
         ref = Database.database().reference()
-        
-        // Retrieve the posts
-        databaseHandle = ref?.child("birdFacts").observe(.childAdded, with: { (snapshot) in
-            
+
+        databaseHandle = ref?.child("birdFacts\(total)").observe(.value, with: { (snapshot) in
+          
             let post = snapshot.value as? String
+            
             if let actualPost = post {
-            self.birdData.append(actualPost)
                 
+                self.birdData.append(actualPost)
                 self.myTableView.reloadData()
-                
+                self.currentFact.append(actualPost)
             }
+
         })
         
+        total = total + 1
+    
     }
+    
+    
+    
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
@@ -63,4 +86,3 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 
 
 }
-
